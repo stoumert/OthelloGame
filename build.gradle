@@ -1,0 +1,77 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gradleup.shadow' version '9.2.2'
+}
+
+group 'fr.univ_amu.m1info.board_game_library'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+ext {
+    junitVersion = '6.0.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+application {
+    mainModule = 'fr.univ_amu.m1info.board_game_library'
+    mainClass = 'fr.univ_amu.m1info.board_game_library.HelloApplication'
+    applicationDefaultJvmArgs = ['--enable-native-access=javafx.graphics']
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'fr.univ_amu.m1info.board_game_library.HelloApplication'
+        attributes 'Automatic-Module-Name': 'fr.univ_amu.m1info.board_game_library'
+    }
+}
+
+javafx {
+    version = '25'
+    modules = ['javafx.controls']
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.0")
+}
+
+tasks.compileJava {
+    options.forkOptions.jvmArgs = ["--enable-native-access=ALL-UNNAMED"]
+}
+jacoco {
+    toolVersion = "0.8.13"
+    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+}
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test
+}
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+test {
+    useJUnitPlatform()
+}
+
